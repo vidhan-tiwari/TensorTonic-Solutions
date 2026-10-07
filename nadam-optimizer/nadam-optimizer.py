@@ -1,0 +1,26 @@
+import numpy as np
+
+def nadam_step(w: list, m: list, v: list, grad: list, lr: float = 0.002, beta1: float = 0.9, beta2: float = 0.999, eps: float = 1e-8) -> dict:
+    """
+    Returns a dictionary with new_w, new_m, and new_v.
+    """
+    w = np.asarray(w, dtype = float)
+    m = np.asarray(m, dtype = float)
+    v = np.asarray(v, dtype = float)
+    grad = np.asarray(grad, dtype = float)
+    if w.shape != grad.shape:
+        raise ValueError("number of gradients are not equal to the number of parameters")
+        
+    if w.shape != m.shape or m.shape != v.shape:
+        raise ValueError('moments are not correctly initialised')
+
+    # updating moments
+    m_new = beta1*m + (1.0 - beta1)*grad
+    v_new = beta2*v + (1.0 - beta2)*(grad**2) 
+    # Nesterov adjust first moment:
+    m_hat = beta1*m_new + (1.0-beta1)*grad
+    # actual weight update
+    w_new = w - (lr*m_hat)/(np.sqrt(v_new)+eps)
+
+    return {'new_w' : w_new, 'new_m' : m_new,'new_v': v_new}
+    
